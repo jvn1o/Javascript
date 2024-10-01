@@ -14,14 +14,20 @@
             left join (select menu_id, count(menu_id) like_count from menu_like group by menu_id) ml
                 on m.id = ml.menu_id
         <where>
-        <if test="categoryId != null">
-            category_id = #{categoryid}
+        <if test="categoryIds != null">
+<!--            category_id = #{categoryid}-->
+<!--            category_id in ( 1, 2, 3 )-->
+            <foreach item="cid" index="index" collection="categoryIds"
+                     open="category_id in (" separator="," close=")" nullable="true">
+                #{cid}
+            </foreach>
         </if>
         <if test="query != null">
             and kor_name like '%${query}%'
         </if>
         </where>
         order by reg_date desc
+        limit #{offset},#{size}
     </select>
 
 <!--

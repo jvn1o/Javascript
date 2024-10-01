@@ -25,8 +25,12 @@ public class MenuController {
 
     @GetMapping("list")
     public String list(
+
+            @RequestParam(name="p", defaultValue = "1")
+            Integer page,
+
             @RequestParam(name = "c", required = false)
-            Integer categoryId,
+            List<Integer> categoryIds,
 
             @RequestParam(name="q", required = false)
             String query,
@@ -38,7 +42,7 @@ public class MenuController {
 //        List<Menu> menus = service.getListOfPageByCategory(categoryId);
 //        List<Menu> menus = service.getList();
 
-        List<MenuView> menus = service.getList(categoryId, query);
+        List<MenuView> menus = service.getList(page, categoryIds, query);
 
         model.addAttribute("categories", categories);
         model.addAttribute("menus", menus);

@@ -1,15 +1,19 @@
 package kr.co.rland.boot3.controller.admin;
 
 import kr.co.rland.boot3.dto.MenuRegDto;
+import kr.co.rland.boot3.entity.Category;
 import kr.co.rland.boot3.entity.Menu;
 import kr.co.rland.boot3.entity.MenuImage;
 import kr.co.rland.boot3.entity.MenuView;
 import kr.co.rland.boot3.model.MenuDetailModel;
+import kr.co.rland.boot3.service.CategoryService;
 import kr.co.rland.boot3.service.MenuImageService;
 import kr.co.rland.boot3.service.MenuService;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,25 +26,47 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller("adminMenuController")
 @RequestMapping("admin/menu")
 public class MenuController {
 
+    private CategoryService categoryService;
     private MenuService service;
     private MenuImageService imageService;
 
     @Autowired
-    public MenuController(MenuService menuService, MenuImageService menuImageService) {
+    public MenuController(
+            CategoryService categoryService,
+            MenuService menuService,
+            MenuImageService menuImageService) {
+        this.categoryService = categoryService;
         this.service = menuService;
         this.imageService = menuImageService;
     }
 
     @GetMapping("list")
-    public String list(Model model){
+    public String list(
+            @RequestParam(name="p", defaultValue = "1")
+            Integer page,
 
-        List<MenuView> menus = service.getListWithImages(null, null);
+            @RequestParam(name = "c", required = false)
+            List<Integer> categoryIds,
+
+            @RequestParam(name="q", required = false)
+            String query,
+
+            Model model
+    ){
+
+        System.out.println(categoryIds);
+
+        List<Category> categories = categoryService.getList();
+        model.addAttribute("categories", categories);
+
+        List<MenuView> menus = service.getListWithImages(page, categoryIds, query);
         model.addAttribute("menus", menus);
 
         return "admin/menu/list";

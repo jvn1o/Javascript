@@ -27,28 +27,37 @@ public class DefaultMenuService implements MenuService{
     private RcmdMenuRepository rcmdMenuRepository;
 
     @Override
-    public List<MenuView> getList() {
-        List<MenuView> menus = getList(null, null);
+    public List<MenuView> getList(Integer page) {
+        List<MenuView> menus = getList(1,null, null);
         return menus;
     }
 
     @Override
-    public List<MenuView> getList(Integer categoryId) {
-        List<MenuView> menus = getList(categoryId, null);
+    public List<MenuView> getList(Integer page, List<Integer> categoryIds) {
+        List<MenuView> menus = getList(1, categoryIds, null);
         return menus;
     }
 
     @Override
-    public List<MenuView> getList(Integer categoryId, String query) {
-        List<MenuView> menus = repository.findAllByCategoryIdAndQuery(categoryId, query);
+    public List<MenuView> getList(Integer page, List<Integer> categoryIds, String query) {
+
+        // P:1->0, P:2->5, P:3->10, P:4->15, 20, ....
+        int size = 5;
+        int offset = (page - 1) * size;
+
+        List<MenuView> menus = repository.findAllByCategoryIdAndQuery(offset, size, categoryIds, query);
 
         return menus;
     }
 
     @Transactional
     @Override
-    public List<MenuView> getListWithImages(Integer categoryId, String query) {
-        List<MenuView> menus = repository.findAllByCategoryIdAndQuery(categoryId, query);
+    public List<MenuView> getListWithImages(Integer page, List<Integer> categoryIds, String query) {
+
+        int size = 5;
+        int offset = (page - 1) * size;
+
+        List<MenuView> menus = repository.findAllByCategoryIdAndQuery(offset, size, categoryIds, query);
 
         for(MenuView menu : menus)
             menu.setImages(menuImageRepository.findAllByMenuId(menu.getId()));
